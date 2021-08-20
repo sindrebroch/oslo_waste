@@ -1,1 +1,1 @@
-"""Oslo Kommune, Avfall og gjenvinning"""
+"""Custom components module."""
