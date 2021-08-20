@@ -14,18 +14,14 @@ from homeassistant.util import slugify
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 
-BASEURL = 'https://www.oslo.kommune.no/avfall-og-gjenvinning/avfallshenting/'
-
-ATTR_PICKUP_DATE = 'pickup_date'
-ATTR_PICKUP_FREQUENCY = 'pickup_frequency'
-ATTR_ADDRESS = 'address'
-
-_LOGGER = logging.getLogger(__name__)
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required('address'): cv.string,
-    vol.Optional('street'): cv.string,
-})
+from .const import (
+    ATTR_ADDRESS,
+    ATTR_PICKUP_DATE,
+    ATTR_PICKUP_FREQUENCY,
+    BASEURL,
+    LOGGER,
+    PLATFORM_SCHEMA,
+)
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -34,7 +30,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     waste_types = await ws.waste_types()
 
     for wt in waste_types:
-        _LOGGER.info("Adding sensor for %s (%s)", config['address'], wt)
+        LOGGER.info("Adding sensor for %s (%s)", config['address'], wt)
         async_add_entities([OsloWasteSensor(hass, ws, wt)], True)
 
 
@@ -75,7 +71,7 @@ class OsloWasteSensor(Entity):
         self._attributes = {
             ATTR_ADDRESS: self._scraper._address,
             ATTR_FRIENDLY_NAME: self._waste_type
-            }
+        }
         self.entity_slug = "{} {}".format(self._scraper._address, self._waste_type)
         self.entity_id = ENTITY_ID_FORMAT.format(
             slugify(self.entity_slug.replace(' ', '_')))
@@ -113,7 +109,7 @@ class OsloWasteSensor(Entity):
         """
         if self._state is not None:
             if (self._state - date.today()).days > 0:
-                _LOGGER.debug("%s - Skipping update.", self.entity_slug)
+                LOGGER.debug("%s - Skipping update.", self.entity_slug)
                 return
         await self._scraper.async_update()
 
