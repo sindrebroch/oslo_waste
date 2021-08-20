@@ -1,4 +1,7 @@
 """Waste pick-up sensor for Oslo."""
+
+from bs4 import BeautifulSoup
+
 import logging
 from datetime import date, datetime
 import async_timeout
@@ -10,8 +13,6 @@ from homeassistant.const import ATTR_FRIENDLY_NAME
 from homeassistant.util import slugify
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
-
-REQUIREMENTS = ['beautifulsoup4==4.7.1'] # TODO: Remove this when it can be loaded with manifestfile
 
 BASEURL = 'https://www.oslo.kommune.no/avfall-og-gjenvinning/avfallshenting/'
 
@@ -48,7 +49,6 @@ class OsloWasteScraper:
         return self._wastes.keys()
 
     async def async_update(self):
-        from bs4 import BeautifulSoup  # TODO: Move this to the top when deps are installed from manifest
         with async_timeout.timeout(10, loop=self.hass.loop):
             req = await async_get_clientsession(
                 self.hass).get(BASEURL, params={'street':self._street})
