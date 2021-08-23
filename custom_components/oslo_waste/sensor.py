@@ -89,7 +89,7 @@ class OsloWasteSensor(SensorEntity):
         await self._coordinator.async_update()
 
         pickup_date = await self._coordinator.get_waste(self._waste_type)
-        LOGGER.warning("pickup date %s", pickup_date)
+        LOGGER.debug("pickup date %s", pickup_date)
         pickup_date = pickup_date.get("date")
 
         frequency = await self._coordinator.get_waste(self._waste_type)
