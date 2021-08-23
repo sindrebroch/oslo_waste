@@ -26,11 +26,11 @@ class OsloWasteCoordinator(DataUpdateCoordinator):
     async def async_update(self):
         result = await self.api.fetch(self.address)
 
-        LOGGER.warning("updating result %s", result)
+        LOGGER.debug("updating result %s", result)
 
         data = BeautifulSoup(result, "html.parser")
 
-        LOGGER.warning("updating data %s", data)
+        LOGGER.debug("updating data %s", data)
 
         values = data.find("caption", text=self.address.upper())
         for v in values:
