@@ -36,7 +36,7 @@ async def async_setup_entry(
                     coordinator,
                     SensorEntityDescription(
                         icon="mdi:trash-can",
-                        unit_of_measurement="days",
+                        native_unit_of_measurement="days",
                         key=waste_type,
                         name=waste_type.title(),
                     ),
@@ -69,7 +69,7 @@ class OsloWasteSensor(SensorEntity):
         self._state = None
 
     @property
-    def state(self) -> StateType:
+    def native_value(self) -> StateType:
         if self._state is not None:
             return (self._state - date.today()).days
 

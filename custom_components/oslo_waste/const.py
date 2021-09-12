@@ -2,11 +2,9 @@
 
 from logging import Logger, getLogger
 
-
-from homeassistant.components.sensor import PLATFORM_SCHEMA
-
 LOGGER: Logger = getLogger(__package__)
 
+PLATFORMS = ["sensor"]
 DOMAIN = "oslo_waste"
 NAME = f"{DOMAIN}"
 VERSION = "2.0.0"
