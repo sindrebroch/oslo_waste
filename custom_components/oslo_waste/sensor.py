@@ -26,35 +26,20 @@ async def async_setup_entry(
 
     await coordinator.async_update()
     waste_types = await coordinator.waste_types()
-
-    for waste_type in waste_types:
-        LOGGER.info("Adding sensor for %s (%s)", coordinator.address, waste_type)
-
-        async_add_entities(
-            [
-                OsloWasteSensor(
-                    coordinator,
-                    SensorEntityDescription(
-                        icon="mdi:trash-can",
-                        native_unit_of_measurement="days",
-                        key=waste_type,
-                        name=waste_type.title(),
-                    ),
-                )
-            ],
-            True,
-        )
+        
+    async_add_entities(
+        OsloWasteSensor(coordinator, waste_type) for waste_type in waste_types
+    )
 
 
 class OsloWasteSensor(SensorEntity):
     def __init__(
         self,
         coordinator: OsloWasteCoordinator,
-        description: SensorEntityDescription,
+        waste_type: str,
     ):
         self._coordinator = coordinator
-        self.entity_description = description
-        self._waste_type = description.key
+        self._waste_type = waste_type
 
         self._attributes = {
             ATTR_ADDRESS: self._coordinator.address,
@@ -65,6 +50,10 @@ class OsloWasteSensor(SensorEntity):
             slugify(self.entity_slug.replace(" ", "_"))
         )
         self._attr_unique_id = self.entity_slug.replace(" ", "_")
+
+        self._attr_icon = "mdi:trash-can"
+        self._attr_unit_of_measurement = "days"
+        self._attr_name = waste_type.title()
 
         self._state = None
 
