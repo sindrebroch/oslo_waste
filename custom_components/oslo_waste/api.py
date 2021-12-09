@@ -13,7 +13,7 @@ class OsloWasteApi:
     async def fetch(self, street) -> str:
         """Fetch from api."""
 
-        with async_timeout.timeout(10, loop=asyncio.get_event_loop()):
+        with async_timeout.timeout(10):
             req = await self._session.get(
                 BASEURL,
                 params={CONF_STREET: street},
