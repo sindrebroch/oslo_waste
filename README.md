@@ -1,5 +1,8 @@
 # Oslo Kommune, Avfall og gjenvinning
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/sindrebroch/oslo_waste?style=flat-square)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+
 Forked from [@kvisles](https://github.com/kvisle/oslo_waste) component. All logic is from him.
 
 This sensor queries the web pages of Oslo Kommune for information about when garbage will be picked up.  It provides one sensor for each class of garbage, with their state set to the amount of days left until the garbage will be picked up.
