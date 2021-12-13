@@ -7,11 +7,12 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify
 
-from .coordinator import OsloWasteCoordinator
+from .coordinator import OsloWasteCoordinator, DOMAIN
 from .const import ATTR_ADDRESS, ATTR_PICKUP_DATE, ATTR_PICKUP_FREQUENCY, DOMAIN, LOGGER
 
 
@@ -55,6 +56,14 @@ class OsloWasteSensor(SensorEntity):
         self._attr_unit_of_measurement = "days"
         self._attr_name = waste_type.title()
 
+        self._attr_device_info = DeviceInfo(
+            name="Oslo Waste",
+            manufacturer="www.oslo.kommune.no",
+            model=f"{self._coordinator.address}",
+            identifiers={(DOMAIN, self._coordinator.address)},
+            configuration_url="https://www.oslo.kommune.no/avfall-og-gjenvinning/avfallshenting/"
+        )
+        
         self._state = None
 
     @property
@@ -63,7 +72,7 @@ class OsloWasteSensor(SensorEntity):
             return (self._state - date.today()).days
 
     @property
-    def device_state_attributes(self) -> dict:
+    def extra_state_attributes(self):
         return self._attributes
 
     async def async_update(self):
@@ -86,6 +95,5 @@ class OsloWasteSensor(SensorEntity):
 
         self._attributes[ATTR_PICKUP_DATE] = pickup_date.isoformat()
         self._attributes[ATTR_PICKUP_FREQUENCY] = frequency
-        self._attributes[ATTR_ATTRIBUTION] = "Data is provided by www.oslo.kommune.no"
         if pickup_date is not None:
             self._state = pickup_date
