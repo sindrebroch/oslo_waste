@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify
 
-from .coordinator import OsloWasteCoordinator, DOMAIN
+from .coordinator import OsloWasteCoordinator
 from .const import ATTR_ADDRESS, ATTR_PICKUP_DATE, ATTR_PICKUP_FREQUENCY, DOMAIN, LOGGER
 
 
