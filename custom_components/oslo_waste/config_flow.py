@@ -3,9 +3,22 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import CONF_ADDRESS, DOMAIN
+from .const import (
+    CONF_LETTER,
+    CONF_NUMBER,
+    CONF_STREET,
+    CONF_STREET_ID,
+    DOMAIN,
+)
 
-CONFIG_SCHEMA = vol.Schema({vol.Required(CONF_ADDRESS): cv.string})
+CONFIG_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_STREET): cv.string,
+        vol.Optional(CONF_NUMBER): cv.string,
+        vol.Optional(CONF_LETTER): cv.string,
+        vol.Optional(CONF_STREET_ID): cv.string,
+    }
+)
 
 
 class OsloWasteFlowHandler(ConfigFlow, domain=DOMAIN):

@@ -1,16 +1,14 @@
-from datetime import date
-from homeassistant.components.sensor import (
-    ENTITY_ID_FORMAT,
-    SensorEntity,
-    SensorEntityDescription,
-)
+from datetime import date, datetime
+from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME
+from homeassistant.const import ATTR_FRIENDLY_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify
+
+from custom_components.oslo_waste.models import HentePunkt, ResponseResult, Tjeneste
 
 from .coordinator import OsloWasteCoordinator
 from .const import ATTR_ADDRESS, ATTR_PICKUP_DATE, ATTR_PICKUP_FREQUENCY, DOMAIN, LOGGER
@@ -26,27 +24,43 @@ async def async_setup_entry(
     coordinator: OsloWasteCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     await coordinator.async_update()
-    waste_types = await coordinator.waste_types()
-        
-    async_add_entities(
-        OsloWasteSensor(coordinator, waste_type) for waste_type in waste_types
-    )
+
+    for address in coordinator.addresses:
+        for hentepunkt in address.HentePunkts:
+            for tjeneste in hentepunkt.Tjenester:
+                async_add_entities(
+                    [OsloWasteSensor(coordinator, address, hentepunkt, tjeneste)]
+                )
 
 
 class OsloWasteSensor(SensorEntity):
+    """Oslo Waste Sensor."""
+
     def __init__(
         self,
         coordinator: OsloWasteCoordinator,
-        waste_type: str,
+        address: ResponseResult,
+        hentepunkt: HentePunkt,
+        tjeneste: Tjeneste,
     ):
         self._coordinator = coordinator
-        self._waste_type = waste_type
+        self.address = address
+        self.hentepunkt = hentepunkt
+        self.tjeneste = tjeneste
+
+        address_str = (
+            self.address.Gatenavn
+            + " "
+            + str(self.address.Husnummer)
+            + self.address.Bokstav
+        )
+        waste_type = tjeneste.Fraksjon.Tekst
 
         self._attributes = {
-            ATTR_ADDRESS: self._coordinator.address,
-            ATTR_FRIENDLY_NAME: self._waste_type,
+            ATTR_ADDRESS: address_str,
+            ATTR_FRIENDLY_NAME: waste_type,
         }
-        self.entity_slug = f"{self._coordinator.address} {self._waste_type}"
+        self.entity_slug = f"{address_str} {waste_type}"
         self.entity_id = ENTITY_ID_FORMAT.format(
             slugify(self.entity_slug.replace(" ", "_"))
         )
@@ -59,12 +73,14 @@ class OsloWasteSensor(SensorEntity):
         self._attr_device_info = DeviceInfo(
             name="Oslo Waste",
             manufacturer="www.oslo.kommune.no",
-            model=f"{self._coordinator.address}",
-            identifiers={(DOMAIN, self._coordinator.address)},
-            configuration_url="https://www.oslo.kommune.no/avfall-og-gjenvinning/avfallshenting/"
+            model=f"{address_str}",
+            identifiers={(DOMAIN, address_str)},
+            configuration_url="https://www.oslo.kommune.no/avfall-og-gjenvinning/nar-hentes-avfallet/",
         )
-        
+
         self._state = None
+
+        self.set_values()
 
     @property
     def native_value(self) -> StateType:
@@ -86,14 +102,14 @@ class OsloWasteSensor(SensorEntity):
                 return
         await self._coordinator.async_update()
 
-        pickup_date = await self._coordinator.get_waste(self._waste_type)
-        LOGGER.debug("pickup date %s", pickup_date)
-        pickup_date = pickup_date.get("date")
+        self.set_values()
 
-        frequency = await self._coordinator.get_waste(self._waste_type)
-        frequency = frequency.get("frequency")
+    def set_values(self):
+        """Set sensor values."""
+        pickup_date = self.tjeneste.TommeDato
 
-        self._attributes[ATTR_PICKUP_DATE] = pickup_date.isoformat()
-        self._attributes[ATTR_PICKUP_FREQUENCY] = frequency
+        self._attributes[ATTR_PICKUP_DATE] = pickup_date
+        self._attributes[ATTR_PICKUP_FREQUENCY] = self.tjeneste.Hyppighet.Tekst
+
         if pickup_date is not None:
-            self._state = pickup_date
+            self._state = datetime.strptime(pickup_date, "%d.%m.%Y").date()

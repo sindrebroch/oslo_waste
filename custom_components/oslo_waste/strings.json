@@ -1,0 +1,23 @@
+{
+    "config": {
+        "flow_title": "Oslo Waste config",
+        "step": {
+            "user": {
+                "data": {
+                    "street": "Street",
+                    "number": "Number (Optional)",
+                    "letter": "Letter (Optional)",
+                    "street_id": "Street ID (Optional)"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+            "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+            "unknown": "[%key:common::config_flow::error::unknown%]"
+        },
+        "abort": {
+            "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+        }
+    }
+}

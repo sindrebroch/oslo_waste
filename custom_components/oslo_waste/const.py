@@ -7,11 +7,11 @@ LOGGER: Logger = getLogger(__package__)
 PLATFORMS = ["sensor"]
 DOMAIN = "oslo_waste"
 NAME = f"{DOMAIN}"
-VERSION = "2.0.0"
-ISSUE_URL = "https://github.com/kvisle/oslo_waste/issues"
+VERSION = "3.0.0"
+ISSUE_URL = "https://github.com/sindrebroch/oslo_waste/issues"
 
 # API
-BASEURL = "https://www.oslo.kommune.no/avfall-og-gjenvinning/avfallshenting/"
+BASEURL = "https://www.oslo.kommune.no/xmlhttprequest.php?service=ren.search"
 
 # Attributes
 ATTR_PICKUP_DATE = "pickup_date"
@@ -19,8 +19,10 @@ ATTR_PICKUP_FREQUENCY = "pickup_frequency"
 ATTR_ADDRESS = "address"
 
 # Config
-CONF_ADDRESS = "address"
 CONF_STREET = "street"
+CONF_NUMBER = "number"
+CONF_LETTER = "letter"
+CONF_STREET_ID = "street_id"
 
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------
